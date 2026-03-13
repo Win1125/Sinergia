@@ -168,12 +168,126 @@
 
 @section('scripts')
 <script>
+
+    function validarFormulario() {
+        const errors = [];
+        
+        const tipo_documento_id = document.getElementById('tipo_documento_id').value;
+        const numero_documento = document.getElementById('numero_documento').value.trim();
+        const nombre1 = document.getElementById('nombre1').value.trim();
+        const apellido1 = document.getElementById('apellido1').value.trim();
+        const genero_id = document.getElementById('genero_id').value;
+        const departamento_id = document.getElementById('departamento_id').value;
+        const municipio_id = document.getElementById('municipio_id').value;
+        const correo = document.getElementById('correo').value.trim();
+
+        // Validar campos obligatorios
+        if (!tipo_documento_id) {
+            errors.push('Debe seleccionar un tipo de documento');
+        }
+        
+        if (!numero_documento) {
+            errors.push('El número de documento es obligatorio');
+        } else if (numero_documento.length < 5) {
+            errors.push('El número de documento debe tener al menos 5 caracteres');
+        } else if (numero_documento.length > 20) {
+            errors.push('El número de documento no puede tener más de 20 caracteres');
+        } else if (!/^\d+$/.test(numero_documento)) {
+            errors.push('El número de documento solo debe contener números');
+        }
+        
+        if (!nombre1) {
+            errors.push('El primer nombre es obligatorio');
+        } else if (nombre1.length < 2) {
+            errors.push('El primer nombre debe tener al menos 2 caracteres');
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre1)) {
+            errors.push('El primer nombre solo debe contener letras');
+        }
+        
+        const nombre2 = document.getElementById('nombre2').value.trim();
+        if (nombre2 && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre2)) {
+            errors.push('El segundo nombre solo debe contener letras');
+        }
+        
+        if (!apellido1) {
+            errors.push('El primer apellido es obligatorio');
+        } else if (apellido1.length < 2) {
+            errors.push('El primer apellido debe tener al menos 2 caracteres');
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido1)) {
+            errors.push('El primer apellido solo debe contener letras');
+        }
+        
+        const apellido2 = document.getElementById('apellido2').value.trim();
+        if (apellido2 && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido2)) {
+            errors.push('El segundo apellido solo debe contener letras');
+        }
+        
+        if (!genero_id) {
+            errors.push('Debe seleccionar un género');
+        }
+        
+        if (!departamento_id) {
+            errors.push('Debe seleccionar un departamento');
+        }
+        
+        if (!municipio_id) {
+            errors.push('Debe seleccionar un municipio');
+        }
+        
+        if (!correo) {
+            errors.push('El correo electrónico es obligatorio');
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+            errors.push('Ingrese un correo electrónico válido');
+        } else if (correo.length > 100) {
+            errors.push('El correo no puede tener más de 100 caracteres');
+        }
+        
+        return errors;
+    }
+
+    // Validación en tiempo real
+    function setupRealTimeValidation() {
+        const inputs = [
+            'numero_documento', 'nombre1', 'nombre2', 
+            'apellido1', 'apellido2', 'correo'
+        ];
+        
+        inputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', function() {
+                    // Quitar clase de error si existe
+                    this.classList.remove('is-invalid');
+                    
+                    // Validaciones específicas
+                    if (id === 'correo') {
+                        if (this.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
+                            this.classList.add('is-invalid');
+                        }
+                    } else if (id === 'numero_documento') {
+                        if (this.value && !/^\d+$/.test(this.value)) {
+                            this.classList.add('is-invalid');
+                        }
+                    } else if (id.includes('nombre') || id.includes('apellido')) {
+                        if (this.value && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(this.value)) {
+                            this.classList.add('is-invalid');
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    // Llamar a esta función al cargar el modal
+    document.getElementById('pacienteModal').addEventListener('shown.bs.modal', function() {
+        setupRealTimeValidation();
+    });
+
     let currentPage = 1;
     let currentSearch = '';
     let deleteId = null;
 
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM cargado');
         cargarPacientes();
         cargarFormData();
     });
@@ -345,22 +459,43 @@
 
     // Guardar paciente
     async function guardarPaciente() {
+
+        const errors = validarFormulario();
+        
+        if (errors.length > 0) {
+            const errorDiv = document.getElementById('form-errors');
+            errorDiv.innerHTML = errors.map(e => `• ${e}`).join('<br>');
+            errorDiv.style.display = 'block';
+            
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        
+        // Ocultar errores si todo está bien
+        document.getElementById('form-errors').style.display = 'none';
+        
         const token = localStorage.getItem('token');
         const id = document.getElementById('paciente-id').value;
         const url = id ? `/api/pacientes/${id}` : '/api/pacientes';
         const method = id ? 'PUT' : 'POST';
         
+        // Mostrar indicador de carga
+        const btnGuardar = event.target;
+        const textoOriginal = btnGuardar.innerHTML;
+        btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...';
+        btnGuardar.disabled = true;
+        
         const data = {
             tipo_documento_id: document.getElementById('tipo_documento_id').value,
-            numero_documento: document.getElementById('numero_documento').value,
-            nombre1: document.getElementById('nombre1').value,
-            nombre2: document.getElementById('nombre2').value || null,
-            apellido1: document.getElementById('apellido1').value,
-            apellido2: document.getElementById('apellido2').value || null,
+            numero_documento: document.getElementById('numero_documento').value.trim(),
+            nombre1: document.getElementById('nombre1').value.trim(),
+            nombre2: document.getElementById('nombre2').value.trim() || null,
+            apellido1: document.getElementById('apellido1').value.trim(),
+            apellido2: document.getElementById('apellido2').value.trim() || null,
             genero_id: document.getElementById('genero_id').value,
             departamento_id: document.getElementById('departamento_id').value,
             municipio_id: document.getElementById('municipio_id').value,
-            correo: document.getElementById('correo').value
+            correo: document.getElementById('correo').value.trim()
         };
 
         try {
@@ -377,16 +512,26 @@
             
             if (result.success) {
                 bootstrap.Modal.getInstance(document.getElementById('pacienteModal')).hide();
+                
                 cargarPacientes();
-                alert(result.message);
+                
+                mostrarNotificacion(result.message, 'success');
             } else {
+                // Mostrar errores del servidor
                 const errorDiv = document.getElementById('form-errors');
-                errorDiv.innerHTML = Object.values(result.errors || {}).join('<br>');
+                if (result.errors) {
+                    errorDiv.innerHTML = Object.values(result.errors).flat().map(e => `• ${e}`).join('<br>');
+                } else {
+                    errorDiv.innerHTML = `• ${result.message || 'Error al guardar'}`;
+                }
                 errorDiv.style.display = 'block';
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error de conexión');
+            mostrarNotificacion('Error de conexión con el servidor', 'danger');
+        } finally {
+            btnGuardar.innerHTML = textoOriginal;
+            btnGuardar.disabled = false;
         }
     }
 
@@ -446,6 +591,25 @@
         }
         
         document.getElementById('pagination').innerHTML = html;
+    }
+
+    function mostrarNotificacion(mensaje, tipo = 'success') {
+        // Crear elemento de notificación
+        const notificacion = document.createElement('div');
+        notificacion.className = `alert alert-${tipo} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        notificacion.style.zIndex = '9999';
+        notificacion.style.minWidth = '300px';
+        notificacion.innerHTML = `
+            <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notificacion);
+        
+        setTimeout(() => {
+            notificacion.remove();
+        }, 3000);
     }
 </script>
 @endsection
