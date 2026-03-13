@@ -4,28 +4,29 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header bg-primary text-white d-flex justify-content-between">
-                <h5>Listado de Pacientes</h5>
-                <button class="btn btn-light btn-sm" onclick="mostrarFormulario()">
-                    <i class="fas fa-plus"></i> Nuevo
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Listado de Pacientes</h5>
+                <button class="btn btn-light btn-sm" onclick="mostrarFormularioNuevo()">
+                    <i class="fas fa-plus"></i> Nuevo Paciente
                 </button>
             </div>
             <div class="card-body">
-                <!-- Búsqueda -->
+                <!-- Barra de búsqueda -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="search" placeholder="Buscar...">
-                            <button class="btn btn-outline-secondary" onclick="buscar()">
+                            <input type="text" class="form-control" id="search-input" 
+                                   placeholder="Buscar por nombre, documento o correo...">
+                            <button class="btn btn-outline-secondary" type="button" onclick="buscarPacientes()">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tabla -->
+                <!-- Tabla de pacientes -->
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>Documento</th>
@@ -39,14 +40,23 @@
                         </thead>
                         <tbody id="tabla-pacientes">
                             <tr>
-                                <td colspan="7" class="text-center">Cargando...</td>
+                                <td colspan="7" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Paginación -->
-                <div id="paginacion" class="d-flex justify-content-center"></div>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div id="pagination-info"></div>
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination" id="pagination"></ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
@@ -57,72 +67,99 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalTitle">Nuevo Paciente</h5>
+                <h5 class="modal-title" id="modal-title">Nuevo Paciente</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="pacienteForm">
-                    <input type="hidden" id="paciente_id">
+                <form id="paciente-form">
+                    <input type="hidden" id="paciente-id">
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label>Tipo Documento</label>
-                            <select class="form-control" id="tipo_documento_id" required></select>
+                            <label class="form-label">Tipo Documento</label>
+                            <select class="form-control" id="tipo_documento_id" required>
+                                <option value="">Seleccione...</option>
+                            </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label>Número Documento</label>
+                            <label class="form-label">Número Documento</label>
                             <input type="text" class="form-control" id="numero_documento" required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label>Primer Nombre</label>
+                            <label class="form-label">Primer Nombre</label>
                             <input type="text" class="form-control" id="nombre1" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label>Segundo Nombre</label>
+                            <label class="form-label">Segundo Nombre</label>
                             <input type="text" class="form-control" id="nombre2">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label>Primer Apellido</label>
+                            <label class="form-label">Primer Apellido</label>
                             <input type="text" class="form-control" id="apellido1" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label>Segundo Apellido</label>
+                            <label class="form-label">Segundo Apellido</label>
                             <input type="text" class="form-control" id="apellido2">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label>Género</label>
-                            <select class="form-control" id="genero_id" required></select>
+                            <label class="form-label">Género</label>
+                            <select class="form-control" id="genero_id" required>
+                                <option value="">Seleccione...</option>
+                            </select>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label>Departamento</label>
-                            <select class="form-control" id="departamento_id" required></select>
+                            <label class="form-label">Departamento</label>
+                            <select class="form-control" id="departamento_id" required>
+                                <option value="">Seleccione...</option>
+                            </select>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label>Municipio</label>
-                            <select class="form-control" id="municipio_id" required></select>
+                            <label class="form-label">Municipio</label>
+                            <select class="form-control" id="municipio_id" required>
+                                <option value="">Primero seleccione departamento</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label>Correo</label>
+                        <label class="form-label">Correo Electrónico</label>
                         <input type="email" class="form-control" id="correo" required>
                     </div>
 
-                    <div id="formError" class="alert alert-danger" style="display: none;"></div>
+                    <div id="form-errors" class="alert alert-danger" style="display: none;"></div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardar()">Guardar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarPaciente()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar este paciente?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete">Eliminar</button>
             </div>
         </div>
     </div>
@@ -131,81 +168,123 @@
 
 @section('scripts')
 <script>
-    let token = localStorage.getItem('token');
     let currentPage = 1;
     let currentSearch = '';
+    let deleteId = null;
 
-    // Verificar autenticación
-    if (!token) {
-        window.location.href = '/login';
-    }
-
-    // Cargar datos al inicio
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM cargado');
         cargarPacientes();
         cargarFormData();
     });
 
     // Cargar pacientes
     async function cargarPacientes(page = 1) {
-        const url = `/api/pacientes?page=${page}&search=${currentSearch}`;
-        const response = await fetch(url, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
+        const token = localStorage.getItem('token');
         
-        if (data.success) {
-            mostrarTabla(data.data);
-            mostrarPaginacion(data.pagination);
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        try {
+            const url = `/api/pacientes?page=${page}&search=${currentSearch}`;
+            console.log('Cargando:', url);
+            
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Datos recibidos:', data);
+            
+            if (data.success) {
+                mostrarTabla(data.data);
+                mostrarPaginacion(data.pagination);
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     }
 
     // Mostrar tabla
     function mostrarTabla(pacientes) {
+        const tbody = document.getElementById('tabla-pacientes');
+        
+        if (!pacientes || pacientes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No hay pacientes</td></tr>';
+            return;
+        }
+
         let html = '';
         pacientes.forEach(p => {
+            
+            console.log('Paciente:', p);
+
+            const nombreCompleto = p.nombres ? 
+                `${p.nombre1 || ''} ${p.nombre2 || ''}`.trim() : '';
+            const apellidoCompleto = p.apellidos ? 
+                `${p.apellido1 || ''} ${p.apellido2 || ''}`.trim() : '';
+            
             html += `<tr>
-                <td>${p.tipo_documento.nombre} ${p.numero_documento}</td>
-                <td>${p.nombres.nombre1} ${p.nombres.nombre2 || ''}</td>
-                <td>${p.apellidos.apellido1} ${p.apellidos.apellido2 || ''}</td>
-                <td>${p.correo}</td>
-                <td>${p.genero.nombre}</td>
-                <td>${p.municipio.nombre}</td>
+                <td>${p.tipo_documento?.nombre || ''} ${p.numero_documento || ''}</td>
+                <td>${nombreCompleto}</td>
+                <td>${apellidoCompleto}</td>
+                <td>${p.correo || ''}</td>
+                <td>${p.genero?.nombre || ''}</td>
+                <td>${p.municipio?.nombre || ''}</td>
                 <td>
-                    <button class="btn btn-sm btn-info" onclick="editar(${p.id})">
+                    <button class="btn btn-sm btn-info" onclick="editarPaciente(${p.id})">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="eliminar(${p.id})">
+                    <button class="btn btn-sm btn-danger" onclick="confirmarEliminar(${p.id})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>`;
         });
-        document.getElementById('tabla-pacientes').innerHTML = html;
+        
+        tbody.innerHTML = html;
     }
 
-    // Cargar datos para selects
+    // Cargar datos para formulario
     async function cargarFormData() {
-        const response = await fetch('/api/pacientes-form-data', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
+        const token = localStorage.getItem('token');
         
-        if (data.success) {
-            // Llenar selects
-            llenarSelect('tipo_documento_id', data.data.tipos_documento);
-            llenarSelect('genero_id', data.data.generos);
-            llenarSelect('departamento_id', data.data.departamentos);
-            
-            // Evento cambio de departamento
-            document.getElementById('departamento_id').addEventListener('change', function() {
-                const depto = data.data.departamentos.find(d => d.id == this.value);
-                llenarSelect('municipio_id', depto ? depto.municipios : []);
+        try {
+            const response = await fetch('/api/pacientes-form-data', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                llenarSelect('tipo_documento_id', data.data.tipos_documento);
+                llenarSelect('genero_id', data.data.generos);
+                llenarSelect('departamento_id', data.data.departamentos);
+                
+                document.getElementById('departamento_id').addEventListener('change', function() {
+                    const deptoId = this.value;
+                    const depto = data.data.departamentos.find(d => d.id == deptoId);
+                    llenarSelect('municipio_id', depto ? depto.municipios : []);
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     }
 
-    // Función helper para llenar selects
     function llenarSelect(id, items) {
         const select = document.getElementById(id);
         select.innerHTML = '<option value="">Seleccione...</option>';
@@ -214,9 +293,69 @@
         });
     }
 
+    // Nuevo paciente
+    function mostrarFormularioNuevo() {
+        document.getElementById('modal-title').textContent = 'Nuevo Paciente';
+        document.getElementById('paciente-form').reset();
+        document.getElementById('paciente-id').value = '';
+        document.getElementById('form-errors').style.display = 'none';
+        
+        const modal = new bootstrap.Modal(document.getElementById('pacienteModal'));
+        modal.show();
+    }
+
+    // Editar paciente
+    async function editarPaciente(id) {
+        console.log('Editando:', id);
+        const token = localStorage.getItem('token');
+        
+        try {
+            const response = await fetch(`/api/pacientes/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const p = data.data;
+                document.getElementById('modal-title').textContent = 'Editar Paciente';
+                document.getElementById('paciente-id').value = p.id;
+                document.getElementById('tipo_documento_id').value = p.tipo_documento.id;
+                document.getElementById('numero_documento').value = p.numero_documento;
+                document.getElementById('nombre1').value = p.nombre1;
+                document.getElementById('nombre2').value = p.nombre2 || '';
+                document.getElementById('apellido1').value = p.apellido1;
+                document.getElementById('apellido2').value = p.apellido2 || '';
+                document.getElementById('genero_id').value = p.genero.id;
+                document.getElementById('departamento_id').value = p.departamento.id;
+                
+                // Cargar municipios
+                setTimeout(() => {
+                    const event = new Event('change');
+                    document.getElementById('departamento_id').dispatchEvent(event);
+                    
+                    setTimeout(() => {
+                        document.getElementById('municipio_id').value = p.municipio.id;
+                    }, 100);
+                }, 100);
+                
+                document.getElementById('correo').value = p.correo;
+                
+                const modal = new bootstrap.Modal(document.getElementById('pacienteModal'));
+                modal.show();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al cargar datos');
+        }
+    }
+
     // Guardar paciente
-    async function guardar() {
-        const id = document.getElementById('paciente_id').value;
+    async function guardarPaciente() {
+        const token = localStorage.getItem('token');
+        const id = document.getElementById('paciente-id').value;
         const url = id ? `/api/pacientes/${id}` : '/api/pacientes';
         const method = id ? 'PUT' : 'POST';
         
@@ -233,95 +372,89 @@
             correo: document.getElementById('correo').value
         };
 
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('pacienteModal')).hide();
-            cargarPacientes();
-            alert(result.message);
-        } else {
-            document.getElementById('formError').innerHTML = Object.values(result.errors || {}).join('<br>');
-            document.getElementById('formError').style.display = 'block';
-        }
-    }
-
-    // Otras funciones (editar, eliminar, buscar, paginación)
-    function mostrarFormulario() {
-        document.getElementById('pacienteForm').reset();
-        document.getElementById('paciente_id').value = '';
-        document.getElementById('modalTitle').innerText = 'Nuevo Paciente';
-        new bootstrap.Modal(document.getElementById('pacienteModal')).show();
-    }
-
-    async function editar(id) {
-        const response = await fetch(`/api/pacientes/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            const p = data.data;
-            document.getElementById('paciente_id').value = p.id;
-            document.getElementById('tipo_documento_id').value = p.tipo_documento.id;
-            document.getElementById('numero_documento').value = p.numero_documento;
-            document.getElementById('nombre1').value = p.nombres.nombre1;
-            document.getElementById('nombre2').value = p.nombres.nombre2 || '';
-            document.getElementById('apellido1').value = p.apellidos.apellido1;
-            document.getElementById('apellido2').value = p.apellidos.apellido2 || '';
-            document.getElementById('genero_id').value = p.genero.id;
-            document.getElementById('departamento_id').value = p.departamento.id;
-            setTimeout(() => {
-                document.getElementById('municipio_id').value = p.municipio.id;
-            }, 500);
-            document.getElementById('correo').value = p.correo;
-            
-            document.getElementById('modalTitle').innerText = 'Editar Paciente';
-            new bootstrap.Modal(document.getElementById('pacienteModal')).show();
-        }
-    }
-
-    async function eliminar(id) {
-        if (confirm('¿Eliminar paciente?')) {
-            const response = await fetch(`/api/pacientes/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
             });
-            const data = await response.json();
-            if (data.success) {
+
+            const result = await response.json();
+            
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('pacienteModal')).hide();
                 cargarPacientes();
-                alert(data.message);
+                alert(result.message);
+            } else {
+                const errorDiv = document.getElementById('form-errors');
+                errorDiv.innerHTML = Object.values(result.errors || {}).join('<br>');
+                errorDiv.style.display = 'block';
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error de conexión');
         }
     }
 
-    function buscar() {
-        currentSearch = document.getElementById('search').value;
+    // Eliminar
+    function confirmarEliminar(id) {
+        deleteId = id;
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+
+    document.getElementById('confirm-delete')?.addEventListener('click', async function() {
+        if (!deleteId) return;
+        
+        const token = localStorage.getItem('token');
+        
+        try {
+            const response = await fetch(`/api/pacientes/${deleteId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                cargarPacientes();
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar');
+        }
+        
+        deleteId = null;
+    });
+
+    // Buscar
+    function buscarPacientes() {
+        currentSearch = document.getElementById('search-input').value;
         cargarPacientes(1);
     }
 
+    // Paginación
     function mostrarPaginacion(pagination) {
-        let html = '<ul class="pagination">';
+        if (!pagination) return;
+        
+        const info = document.getElementById('pagination-info');
+        info.textContent = `Página ${pagination.current_page} de ${pagination.last_page} (Total: ${pagination.total})`;
+        
+        let html = '';
         for (let i = 1; i <= pagination.last_page; i++) {
             html += `<li class="page-item ${i === pagination.current_page ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="cargarPacientes(${i})">${i}</a>
+                <a class="page-link" href="#" onclick="cargarPacientes(${i}); return false;">${i}</a>
             </li>`;
         }
-        html += '</ul>';
-        document.getElementById('paginacion').innerHTML = html;
-    }
-
-    function logout() {
-        localStorage.removeItem('token');
-        window.location.href = '/';
+        
+        document.getElementById('pagination').innerHTML = html;
     }
 </script>
 @endsection

@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <script>
+        (function() {
+            const token = localStorage.getItem('token');
+            const currentPath = window.location.pathname;
+            
+            // Si no hay token y no estamos en login, redirigir
+            if (!token && currentPath !== '/login') {
+                window.location.href = '/login';
+            }
+            
+            // Si hay token y estamos en login, redirigir al home
+            if (token && currentPath === '/login') {
+                window.location.href = '/';
+            }
+        })();
+    </script>
     <nav class="navbar navbar-dark bg-primary">
         <div class="container-fluid">
             <span class="navbar-brand">Sistema de Gestión de Pacientes</span>
