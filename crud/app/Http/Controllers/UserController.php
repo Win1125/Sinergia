@@ -31,7 +31,7 @@ class UserController extends Controller
         }
 
         // Paginación
-        $perPage = $request->get('per_page', 10);
+        $perPage = $request->get('per_page', 5);
         $pacientes = $query->paginate($perPage);
 
         return response()->json([

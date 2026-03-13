@@ -189,7 +189,6 @@
 
         try {
             const url = `/api/pacientes?page=${page}&search=${currentSearch}`;
-            console.log('Cargando:', url);
             
             const response = await fetch(url, {
                 headers: {
@@ -205,7 +204,6 @@
             }
 
             const data = await response.json();
-            console.log('Datos recibidos:', data);
             
             if (data.success) {
                 mostrarTabla(data.data);
@@ -228,17 +226,10 @@
         let html = '';
         pacientes.forEach(p => {
             
-            console.log('Paciente:', p);
-
-            const nombreCompleto = p.nombres ? 
-                `${p.nombre1 || ''} ${p.nombre2 || ''}`.trim() : '';
-            const apellidoCompleto = p.apellidos ? 
-                `${p.apellido1 || ''} ${p.apellido2 || ''}`.trim() : '';
-            
             html += `<tr>
                 <td>${p.tipo_documento?.nombre || ''} ${p.numero_documento || ''}</td>
-                <td>${nombreCompleto}</td>
-                <td>${apellidoCompleto}</td>
+                <td>${p.nombre1 || ''} ${p.nombre2 || ''}</td>
+                <td>${p.apellido1 || ''} ${p.apellido2 || ''}</td>
                 <td>${p.correo || ''}</td>
                 <td>${p.genero?.nombre || ''}</td>
                 <td>${p.municipio?.nombre || ''}</td>
